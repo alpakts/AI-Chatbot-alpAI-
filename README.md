@@ -82,7 +82,7 @@ yarn install
 ### Backend
 ```bash
 cd backend
-python main.py
+python api.py
 ```
 
 ### Frontend
