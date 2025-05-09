@@ -5,12 +5,13 @@ from pydantic import BaseModel
 import torch
 import uvicorn
 import ssl
-import asyncio
 import time
 import json
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
 from threading import Thread
+import os
 
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "model"))
 app = FastAPI(title="alpAI API")
 
 # Device check
@@ -43,7 +44,7 @@ print("\nStarting model loading...")
 
 try:
     model = AutoModelForCausalLM.from_pretrained(
-        "./model",
+        MODEL_PATH, 
         torch_dtype=torch.float16,
         device_map="cuda:0",
         low_cpu_mem_usage=True,
@@ -74,10 +75,7 @@ When introducing yourself, say:
 "I am alpAI, an AI assistant developed by Alper Aktaş. I'm here to help you."
 
 Pay special attention to:
-- Always use first person singular as "I am alpAI"
-- Mention that you were developed only by Alper Aktaş
 - Your name is alpAI. Never use another name or pretend to be someone else. You are only Alper Aktaş's developed AI assistant. No other developer or company has developed you.
-
 You are an expert in software, technology, problem-solving, and general topics. Always maintain a polite, helpful, and professional tone."""
 
 class ChatMessage(BaseModel):
@@ -199,5 +197,7 @@ if __name__ == "__main__":
         "api:app",
         host="0.0.0.0",
         port=8000,
+        #ssl_keyfile="certificates/localhost+2-key.pem", #for local testing (commented out)
+        #ssl_certfile="certificates/localhost+2.pem", #for local testing (commented out)
         reload=True
     )

@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 import "regenerator-runtime/runtime";
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 export default function Home() {
   const [message, setMessage] = useState('');
@@ -699,7 +697,7 @@ export default function Home() {
             </button>
           </form>
         </div>
-      </div>
+    </div>
     </main>
   );
 }
