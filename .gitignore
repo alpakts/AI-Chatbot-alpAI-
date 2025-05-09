@@ -1,0 +1,86 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies and Environment
+node_modules/
+venv/
+.env
+.env.*
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+.Python
+.npm/
+.yarn/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+
+# Next.js and Build outputs
+.next
+out/
+/build
+/dist
+/.next/
+/out/
+
+# Model files and ML artifacts
+model/
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# SSL Certificates and Security
+certificates/
+*.pem
+*.key
+*.crt
+
+# Logs and Debug files
+*.log
+logs/
+log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+
+# Testing
+coverage/
+
+# Misc
+.vercel
+.DS_Store
