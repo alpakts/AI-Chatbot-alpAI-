@@ -1,17 +1,121 @@
 # alpAI Chat Bot
 
-A modern, AI-powered chatbot application with voice capabilities, built using Next.js for the frontend and Python for the backend.
+A conversational AI assistant with voice capabilities, developed by Alper Aktaş.
 
-## 🌟 Features
+## Features
 
-- 💬 Real-time chat interface
-- 🗣️ Text-to-Speech capabilities with Web Speech API
-- 🎙️ Voice input support using react-speech-recognition
-- 🔄 Multiple language support
-- ⚡ Fast response times with optimized API calls
-- 🎨 Modern and responsive UI with TailwindCSS
-- 🔒 Secure API integration using axios
-- 🎯 Context-aware conversations
+- Real-time chat with AI
+- Voice input and output
+- Adjustable voice settings
+- Streaming responses
+- Modern and responsive UI
+
+## Setup
+
+### Prerequisites
+
+- Python 3.8+
+- Node.js 16+
+- CUDA-capable GPU (recommended)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd chat-bot
+```
+
+2. Set up the backend:
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+3. Set up the frontend:
+```bash
+cd frontend
+npm install
+```
+
+### Model Setup
+
+You have two options for setting up the model:
+
+#### Option 1: Download from Hugging Face (Recommended)
+
+1. Install the Hugging Face CLI:
+```bash
+pip install huggingface_hub
+```
+
+2. Login to Hugging Face:
+```bash
+huggingface-cli login
+```
+
+3. The model will be automatically downloaded when you first run the application.
+
+#### Option 2: Manual Download
+
+1. Download the model files from [Qwen2.5-Coder-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct)
+2. Create a `model` directory in the project root:
+```bash
+mkdir model
+```
+3. Place all downloaded model files in the `model` directory
+
+## Running the Application
+
+1. Start the backend server:
+```bash
+cd backend
+python api.py
+```
+
+2. Start the frontend development server:
+```bash
+cd frontend
+npm run dev
+```
+
+3. Open your browser and navigate to `http://localhost:3000`
+
+## Model Information
+
+This application uses the Qwen2.5-Coder-0.5B-Instruct model, which has the following specifications:
+
+- Parameters: 494M
+- Context Length: 32,768 tokens
+- Language Support: Multilingual (primarily English)
+- License: Apache 2.0
+
+For more information about the model, visit [Qwen2.5-Coder-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct).
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Model Loading Error**:
+   - Ensure you have logged in to Hugging Face CLI
+   - Check if you have sufficient disk space
+   - Verify your internet connection
+
+2. **CUDA Error**:
+   - Make sure you have a compatible NVIDIA GPU
+   - Install the latest NVIDIA drivers
+   - Install CUDA toolkit
+
+3. **Memory Issues**:
+   - The model requires approximately 2GB of VRAM
+   - Close other GPU-intensive applications
+   - Consider using CPU mode if GPU memory is insufficient
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🛠️ Tech Stack
 

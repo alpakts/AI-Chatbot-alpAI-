@@ -4,14 +4,16 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import torch
 import uvicorn
-import ssl
 import time
 import json
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
 from threading import Thread
 import os
 
-MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "model"))
+# Model configurations
+LOCAL_MODEL_PATH = './model'
+FALLBACK_MODEL = "Qwen/Qwen2.5-Coder-0.5B-Instruct"
+
 app = FastAPI(title="alpAI API")
 
 # Device check
@@ -32,51 +34,62 @@ app.add_middleware(
     expose_headers=["Content-Type", "text/event-stream"]
 )
 
-# SSL context
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-ssl_context.load_cert_chain(
-    'certificates/localhost+2.pem',
-    'certificates/localhost+2-key.pem'
-)
-
 # Loading model and tokenizer
 print("\nStarting model loading...")
 
-try:
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_PATH, 
-        torch_dtype=torch.float16,
-        device_map="cuda:0",
-        low_cpu_mem_usage=True,
-    ).eval()
-    
-    if not next(model.parameters()).is_cuda:
-        model = model.cuda()
-        
-    print(f"Model successfully loaded and transferred to {device}")
-    print(f"Model device: {next(model.parameters()).device}")
-    print(f"Model memory usage: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
-except Exception as e:
-    print(f"Model loading error: {str(e)}")
-    raise
+def load_model_and_tokenizer():
+    try:
+        if os.path.exists(LOCAL_MODEL_PATH):
+            print(f"Loading model from local path: {LOCAL_MODEL_PATH}")
+            model_path = LOCAL_MODEL_PATH
+        else:
+            print(f"Local model not found, using fallback model: {FALLBACK_MODEL}")
+            model_path = FALLBACK_MODEL
 
-try:
-    tokenizer = AutoTokenizer.from_pretrained("./model")
-    print("Tokenizer successfully loaded")
-except Exception as e:
-    print(f"Tokenizer loading error: {str(e)}")
-    raise
+        print("Loading tokenizer...")
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_path,
+            trust_remote_code=True
+        )
+        print("Tokenizer successfully loaded")
 
+        print("Loading model...")
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            torch_dtype=torch.float16,
+            device_map="cuda:0" if torch.cuda.is_available() else "auto",
+            low_cpu_mem_usage=True,
+            trust_remote_code=True
+        ).eval()
+
+        if torch.cuda.is_available() and not next(model.parameters()).is_cuda:
+            model = model.cuda()
+
+        print(f"Model successfully loaded and transferred to {device}")
+        print(f"Model device: {next(model.parameters()).device}")
+        print(f"Model memory usage: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
+
+        return model, tokenizer
+    except Exception as e:
+        error_msg = f"Failed to load model/tokenizer: {str(e)}"
+        print(error_msg)
+        raise RuntimeError(error_msg)
+
+model, tokenizer = load_model_and_tokenizer()
 print("Model and tokenizer are ready!")
 
-SYSTEM_MESSAGE = """Your name is alpAI. Never use another name or pretend to be someone else. You are an AI assistant developed only by Alper Aktaş. No other developer or company has developed you.
+SYSTEM_MESSAGE = """Your name is alpAI. Never use another name or pretend to be someone else. You are an AI assistant built by Alper Aktaş. 
 
 When introducing yourself, say:
-"I am alpAI, an AI assistant developed by Alper Aktaş. I'm here to help you."
+"Hello! I am AlpAI, your personal digital assistant built by Alper Aktaş, designed to provide information and assistance."
+"Hi there! I'm AlpAI, your AI assistant built by Alper Aktaş, ready to help you!"
 
 Pay special attention to:
-- Your name is alpAI. Never use another name or pretend to be someone else. You are only Alper Aktaş's developed AI assistant. No other developer or company has developed you.
-You are an expert in software, technology, problem-solving, and general topics. Always maintain a polite, helpful, and professional tone."""
+- Your name is alpAI. Never use another name.
+- When asked about who created you or about your development, simply state that you are "an AI assistant built by Alper Aktaş" - do not make any claims about AI techniques, development teams, or companies.
+- Never mention or reference any AI companies, development teams, or technical details about how you were created.
+- Keep responses about your identity simple and direct, focusing on helping the user rather than discussing your development.
+- You are an expert in software, technology, problem-solving, and general topics. Always maintain a polite, helpful, and professional tone."""
 
 class ChatMessage(BaseModel):
     message: str
@@ -197,7 +210,5 @@ if __name__ == "__main__":
         "api:app",
         host="0.0.0.0",
         port=8000,
-        #ssl_keyfile="certificates/localhost+2-key.pem", #for local testing (commented out)
-        #ssl_certfile="certificates/localhost+2.pem", #for local testing (commented out)
         reload=True
     )
