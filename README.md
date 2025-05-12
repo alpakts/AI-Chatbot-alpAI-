@@ -15,7 +15,7 @@ A conversational AI assistant with voice capabilities, developed by Alper Aktaş
 ### Prerequisites
 
 - Python 3.10.11+
-- Node.js 22+
+- Node.js 20+
 - CUDA-capable GPU (recommended)
 
 ### Installation
